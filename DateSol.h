@@ -3,7 +3,7 @@
 #include<vector>
 #include<limits>
 #include<map>
-//·ÖÎö³öµÄÒ»¸öword·ûºÅµÄ½á¹¹Ìå
+//åˆ†æå‡ºçš„ä¸€ä¸ªwordç¬¦å·çš„ç»“æ„ä½“
 typedef struct group
 {
 	std::string names;
@@ -13,21 +13,22 @@ typedef struct group
 
 bool MidSearch_KeyWord(std::string tar, std::vector<std::string>& KeyWordPool);
 void Add_Word(int Type);
-int GetIntBase(std::string num);//»ñÈ¡¸ÃÊıµÄ½øÖÆ±íÊ¾
-int IsBaseInt(std::string num, int base, std::string& Valid);//2 8 16½øÖÆÅĞ¶Ï
-int Is10Int(std::string num, std::string& Valid);//10½øÖÆÅĞ¶Ï
-int GetUIntBase(std::string num);//»ñÈ¡¸ÃÊıµÄ½øÖÆ±íÊ¾
+int GetIntBase(std::string num);//è·å–è¯¥æ•°çš„è¿›åˆ¶è¡¨ç¤º
+int IsBaseInt(std::string num, int base, std::string& Valid);//2 8 16è¿›åˆ¶åˆ¤æ–­
+int Is10Int(std::string num, std::string& Valid);//10è¿›åˆ¶åˆ¤æ–­
+int GetUIntBase(std::string num);//è·å–è¯¥æ•°çš„è¿›åˆ¶è¡¨ç¤º
 int IsBaseUInt(std::string num, int base, std::string& Valid);
 int Is10UInt(std::string num, std::string& Valid);
-int GetLLongBase(std::string num);//»ñÈ¡¸ÃÊıµÄ½øÖÆ±íÊ¾
-int IsBaseLLong(std::string num, int base, std::string& Valid);//²»°üº¬10½øÖÆÅĞ¶Ï
+int GetLLongBase(std::string num);//è·å–è¯¥æ•°çš„è¿›åˆ¶è¡¨ç¤º
+int IsBaseLLong(std::string num, int base, std::string& Valid);//ä¸åŒ…å«10è¿›åˆ¶åˆ¤æ–­
 int Is10LLong(std::string num, std::string& Valid);
-int GetULLongBase(std::string num);//»ñÈ¡¸ÃÊıµÄ½øÖÆ±íÊ¾
-int IsBaseULLong(std::string num, int base, std::string& Valid);//²»°üº¬10½øÖÆÅĞ¶Ï
+int GetULLongBase(std::string num);//è·å–è¯¥æ•°çš„è¿›åˆ¶è¡¨ç¤º
+int IsBaseULLong(std::string num, int base, std::string& Valid);//ä¸åŒ…å«10è¿›åˆ¶åˆ¤æ–­
 int Is10ULLong(std::string num, std::string& Valid);
 
+#define MAX_LEN_SIGN_WORD 247
 #define TokenNum 12
-//¼ÇºÅÊôĞÔ
+//è®°å·å±æ€§
 #define SIGN_WORD 0
 #define KEY_WORD 1
 #define OP_WORD 2
