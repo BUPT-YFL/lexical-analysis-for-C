@@ -1,6 +1,6 @@
 #include"DateSol.h"
 
-//¹Ø¼ü×ÖÁĞ±í£¬ÒÑ¾­¹ı×ÖµäĞòÅÅĞò
+//å…³é”®å­—åˆ—è¡¨ï¼Œå·²ç»è¿‡å­—å…¸åºæ’åº
 std::vector<std::string> KeyWord =
 {
 	std::string("auto"),
@@ -37,7 +37,7 @@ std::vector<std::string> KeyWord =
 		std::string("while")
 };
 
-//TokenÀàĞÍ±í(ÀàĞÍÂë,ÀàĞÍ×Ö·û´®±íÊ¾)
+//Tokenç±»å‹è¡¨(ç±»å‹ç ,ç±»å‹å­—ç¬¦ä¸²è¡¨ç¤º)
 std::map<int, std::string> TokenType =
 {
 	{SIGN_WORD,std::string("SIGN_WORD")},
@@ -54,27 +54,27 @@ std::map<int, std::string> TokenType =
 	{NUM_DOUBLE,std::string("NUM_DOUBLE")}
 };
 
-//·ÖÎö³öµÄword·ûºÅ±í¹ÜÀí
+//åˆ†æå‡ºçš„wordç¬¦å·è¡¨ç®¡ç†
 std::vector<GROUP> groups;
 
-//¸÷Àà±ê¼Ç×ÜÊı
+//å„ç±»æ ‡è®°æ€»æ•°
 int Token_Times[TokenNum] = { 0 };
 
-//´íÎóĞÅÏ¢¹ÜÀí
-	//´æ´¢´íÎóËùÔÚµÄĞĞ×ø±ê
+//é”™è¯¯ä¿¡æ¯ç®¡ç†
+	//å­˜å‚¨é”™è¯¯æ‰€åœ¨çš„è¡Œåæ ‡
 std::vector<int> Error_col;
-	//´íÎó×Ö·û´®
+	//é”™è¯¯å­—ç¬¦ä¸²
 std::vector<std::string> Error_word;
-	//´íÎóĞÅÏ¢
+	//é”™è¯¯ä¿¡æ¯
 std::vector<std::string> Error_mas;
 
-//³ÌĞòĞĞÊı¡¢×Ö·û×ÜÊı
+//ç¨‹åºè¡Œæ•°ã€å­—ç¬¦æ€»æ•°
 extern int File_lines;
 extern int File_CharNums;
-//´¢´æ·ÖÎöµÄword
+//å‚¨å­˜åˆ†æçš„word
 extern std::string word;
 
-//¶ş·Ö²éÕÒwordÊÇ·ñÔÚ¹Ø¼ü´Ê±íÄÚ
+//äºŒåˆ†æŸ¥æ‰¾wordæ˜¯å¦åœ¨å…³é”®è¯è¡¨å†…
 bool MidSearch_KeyWord(std::string tar, std::vector<std::string>& KeyWordPool)
 {
 	auto left = KeyWordPool.begin();
@@ -102,12 +102,30 @@ bool MidSearch_KeyWord(std::string tar, std::vector<std::string>& KeyWordPool)
 	return false;
 }
 
-//·ÖÎöword£¬·Ç·¨£¬Ôò·ÅÈë´íÎóĞÅÏ¢±í£¬ÕıÈ·£¬·ÅÈëword·ûºÅ±í
+//åˆ†æwordï¼Œéæ³•ï¼Œåˆ™æ”¾å…¥é”™è¯¯ä¿¡æ¯è¡¨ï¼Œæ­£ç¡®ï¼Œæ”¾å…¥wordç¬¦å·è¡¨
 void Add_Word(int Type)
 {
 	switch (Type)
 	{
-	case SIGN_WORD: case KEY_WORD: case OP_WORD: case BOUND_WORD: case CONST_STR: case CONST_CH:
+	case  SIGN_WORD:
+	{
+		if (word.size() > MAX_LEN_SIGN_WORD)//æ ‡è¯†ç¬¦è¿‡é•¿
+		{
+			Error_col.push_back(File_lines);
+			Error_word.push_back(word);
+			Error_mas.push_back(std::string("æ ‡è¯†ç¬¦è¿‡é•¿"));
+		}
+		else
+		{
+			GROUP add;
+			add.names = word;
+			add.Types = SIGN_WORD;
+			groups.push_back(add);
+			Token_Times[Type] += 1;
+		}
+		break;
+	}
+	case KEY_WORD: case OP_WORD: case BOUND_WORD: case CONST_STR: case CONST_CH:
 	{
 		GROUP add;
 		add.names = word;
@@ -119,11 +137,11 @@ void Add_Word(int Type)
 	case NUM_FLOAT:
 	{
 		float get = (float)atof(word.c_str());
-		if (!_finite(get))//Ô½½ç
+		if (!_finite(get))//è¶Šç•Œ
 		{
 			Error_col.push_back(File_lines);
 			Error_word.push_back(word);
-			Error_mas.push_back(std::string("¸¡µãÊı³¬³öfloat·¶Î§"));
+			Error_mas.push_back(std::string("æµ®ç‚¹æ•°è¶…å‡ºfloatèŒƒå›´"));
 		}
 		else
 		{
@@ -139,11 +157,11 @@ void Add_Word(int Type)
 	case NUM_DOUBLE:
 	{
 		double get = atof(word.c_str());
-		if (!_finite(get))//Ô½½ç
+		if (!_finite(get))//è¶Šç•Œ
 		{
 			Error_col.push_back(File_lines);
 			Error_word.push_back(word);
-			Error_mas.push_back(std::string("¸¡µãÊı³¬³ödouble·¶Î§"));
+			Error_mas.push_back(std::string("æµ®ç‚¹æ•°è¶…å‡ºdoubleèŒƒå›´"));
 		}
 		else
 		{
@@ -158,7 +176,7 @@ void Add_Word(int Type)
 	}
 	case NUM_INT:
 	{
-		//¶Ôint½øĞĞ¼ì²â
+		//å¯¹intè¿›è¡Œæ£€æµ‹
 		int base = GetIntBase(word);
 		switch (base)
 		{
@@ -167,14 +185,14 @@ void Add_Word(int Type)
 			std::string valid;
 			switch ((IsBaseInt(word, base, valid)))
 			{
-			case 0://Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+			case 0://æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 			{
 				Error_col.push_back(File_lines);
 				Error_word.push_back(word);
-				Error_mas.push_back(std::string("ÕûÊı³£Á¿¹ı´ó"));
+				Error_mas.push_back(std::string("æ•´æ•°å¸¸é‡è¿‡å¤§"));
 				break;
 			}
-			case 1://ÓÃint
+			case 1://ç”¨int
 			{
 				GROUP add;
 				add.names = valid;
@@ -183,7 +201,7 @@ void Add_Word(int Type)
 				Token_Times[NUM_INT] += 1;
 				break;
 			}
-			case 2://ÓÃlong long
+			case 2://ç”¨long long
 			{
 				GROUP add;
 				add.names = valid;
@@ -211,14 +229,14 @@ void Add_Word(int Type)
 			std::string valid;
 			switch (Is10Int(word, valid))
 			{
-			case 0://Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+			case 0://æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 			{
 				Error_col.push_back(File_lines);
 				Error_word.push_back(word);
-				Error_mas.push_back(std::string("ÕûÊı³£Á¿¹ı´ó"));
+				Error_mas.push_back(std::string("æ•´æ•°å¸¸é‡è¿‡å¤§"));
 				break;
 			}
-			case 1://ÓÃint
+			case 1://ç”¨int
 			{
 				GROUP add;
 				add.names = valid;
@@ -227,7 +245,7 @@ void Add_Word(int Type)
 				Token_Times[NUM_INT] += 1;
 				break;
 			}
-			case 2://ÓÃlong long
+			case 2://ç”¨long long
 			{
 				GROUP add;
 				add.names = valid;
@@ -257,7 +275,7 @@ void Add_Word(int Type)
 	}
 	case NUM_UINT:
 	{
-		//¶ÔUint¼ì²â½øÖÆ
+		//å¯¹Uintæ£€æµ‹è¿›åˆ¶
 		int base = GetUIntBase(word);
 		switch (base)
 		{
@@ -266,14 +284,14 @@ void Add_Word(int Type)
 			std::string valid;
 			switch ((IsBaseUInt(word, base, valid)))
 			{
-			case 0://Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+			case 0://æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 			{
 				Error_col.push_back(File_lines);
 				Error_word.push_back(word);
-				Error_mas.push_back(std::string("ÕûÊı³£Á¿¹ı´ó"));
+				Error_mas.push_back(std::string("æ•´æ•°å¸¸é‡è¿‡å¤§"));
 				break;
 			}
-			case 1://ÓÃUint
+			case 1://ç”¨Uint
 			{
 				GROUP add;
 				add.names = valid;
@@ -301,14 +319,14 @@ void Add_Word(int Type)
 			std::string valid;
 			switch (Is10UInt(word, valid))
 			{
-			case 0://Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+			case 0://æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 			{
 				Error_col.push_back(File_lines);
 				Error_word.push_back(word);
-				Error_mas.push_back(std::string("ÕûÊı³£Á¿¹ı´ó"));
+				Error_mas.push_back(std::string("æ•´æ•°å¸¸é‡è¿‡å¤§"));
 				break;
 			}
-			case 1://ÓÃUint
+			case 1://ç”¨Uint
 			{
 				GROUP add;
 				add.names = valid;
@@ -338,7 +356,7 @@ void Add_Word(int Type)
 	}
 	case NUM_LLONG:
 	{
-		//¶ÔLL¼ì²â½øÖÆ
+		//å¯¹LLæ£€æµ‹è¿›åˆ¶
 		int base = GetLLongBase(word);
 		switch (base)
 		{
@@ -347,14 +365,14 @@ void Add_Word(int Type)
 			std::string valid;
 			switch ((IsBaseLLong(word, base, valid)))
 			{
-			case 0://Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+			case 0://æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 			{
 				Error_col.push_back(File_lines);
 				Error_word.push_back(word);
-				Error_mas.push_back(std::string("ÕûÊı³£Á¿¹ı´ó"));
+				Error_mas.push_back(std::string("æ•´æ•°å¸¸é‡è¿‡å¤§"));
 				break;
 			}
-			case 1://ÓÃLL
+			case 1://ç”¨LL
 			{
 				GROUP add;
 				add.names = valid;
@@ -382,14 +400,14 @@ void Add_Word(int Type)
 			std::string valid;
 			switch (Is10LLong(word, valid))
 			{
-			case 0://Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+			case 0://æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 			{
 				Error_col.push_back(File_lines);
 				Error_word.push_back(word);
-				Error_mas.push_back(std::string("ÕûÊı³£Á¿¹ı´ó"));
+				Error_mas.push_back(std::string("æ•´æ•°å¸¸é‡è¿‡å¤§"));
 				break;
 			}
-			case 1://ÓÃLL
+			case 1://ç”¨LL
 			{
 				GROUP add;
 				add.names = valid;
@@ -419,7 +437,7 @@ void Add_Word(int Type)
 	}
 	case NUM_ULLONG:
 	{
-		//¶ÔULL¼ì²â½øÖÆ
+		//å¯¹ULLæ£€æµ‹è¿›åˆ¶
 		int base = GetULLongBase(word);
 		switch (base)
 		{
@@ -428,11 +446,11 @@ void Add_Word(int Type)
 			std::string valid;
 			switch ((IsBaseULLong(word, base, valid)))
 			{
-			case 0://Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+			case 0://æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 			{
 				Error_col.push_back(File_lines);
 				Error_word.push_back(word);
-				Error_mas.push_back(std::string("ÕûÊı³£Á¿¹ı´ó"));
+				Error_mas.push_back(std::string("æ•´æ•°å¸¸é‡è¿‡å¤§"));
 				break;
 			}
 			case 1://ULL
@@ -454,11 +472,11 @@ void Add_Word(int Type)
 			std::string valid;
 			switch (Is10ULLong(word, valid))
 			{
-			case 0://Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+			case 0://æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 			{
 				Error_col.push_back(File_lines);
 				Error_word.push_back(word);
-				Error_mas.push_back(std::string("ÕûÊı³£Á¿¹ı´ó"));
+				Error_mas.push_back(std::string("æ•´æ•°å¸¸é‡è¿‡å¤§"));
 				break;
 			}
 			case 1:
@@ -487,7 +505,7 @@ void Add_Word(int Type)
 
 int GetIntBase(std::string num)
 {
-	//numÄ©Î²ÎŞºó×º
+	//numæœ«å°¾æ— åç¼€
 	if (num.size() < 2)
 	{
 		return 10;
@@ -501,9 +519,9 @@ int GetIntBase(std::string num)
 	else return 10;
 }
 
-int IsBaseInt(std::string num, int base, std::string& Valid)//²»°üº¬10½øÖÆÅĞ¶Ï
+int IsBaseInt(std::string num, int base, std::string& Valid)//ä¸åŒ…å«10è¿›åˆ¶åˆ¤æ–­
 {
-	//numÄ©Î²ÎŞºó×º
+	//numæœ«å°¾æ— åç¼€
 	unsigned int numLen = 0;
 	bool begin = false;
 	if (base == 2)
@@ -566,15 +584,15 @@ int IsBaseInt(std::string num, int base, std::string& Valid)//²»°üº¬10½øÖÆÅĞ¶Ï
 		base /= 2;
 		index += 1;
 	}
-	if (((8 * sizeof(int) - 1) / index) >= numLen) return 1;//¿ÉÒÔÓÃint±íÊ¾
-	if (((8 * sizeof(long long) - 1) / index) >= numLen) return 2;//ĞèÒªÌáÉıµ½long long±íÊ¾
-	if ((8 * sizeof(unsigned long long) / index) >= numLen) return 3;//ĞèÒªÌáÉıµ½unsigned long long±íÊ¾
-	return 0;//Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+	if (((8 * sizeof(int) - 1) / index) >= numLen) return 1;//å¯ä»¥ç”¨intè¡¨ç¤º
+	if (((8 * sizeof(long long) - 1) / index) >= numLen) return 2;//éœ€è¦æå‡åˆ°long longè¡¨ç¤º
+	if ((8 * sizeof(unsigned long long) / index) >= numLen) return 3;//éœ€è¦æå‡åˆ°unsigned long longè¡¨ç¤º
+	return 0;//æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 }
 int Is10Int(std::string num, std::string& Valid)
 {
-	//numÄ©Î²ÎŞºó×º
-	//ÏÈ»ñÈ¡ÓĞĞ§Î»
+	//numæœ«å°¾æ— åç¼€
+	//å…ˆè·å–æœ‰æ•ˆä½
 	bool real = false;
 	for (unsigned int i = 0; i < num.size(); i++)
 	{
@@ -596,7 +614,7 @@ int Is10Int(std::string num, std::string& Valid)
 			return 1;
 		}
 	}
-	//ÎŞ·¨ÓÃint±íÊ¾
+	//æ— æ³•ç”¨intè¡¨ç¤º
 	std::string StdLL = std::to_string(LLONG_MAX);
 	if (Valid.size() < StdLL.size())
 	{
@@ -609,7 +627,7 @@ int Is10Int(std::string num, std::string& Valid)
 			return 2;
 		}
 	}
-	//ÎŞ·¨ÓÃlong long±íÊ¾
+	//æ— æ³•ç”¨long longè¡¨ç¤º
 	std::string StdULL = std::to_string(ULLONG_MAX);
 	if (Valid.size() < StdULL.size())
 	{
@@ -623,13 +641,13 @@ int Is10Int(std::string num, std::string& Valid)
 		}
 	}
 	return 0;
-	//ÎŞ·¨ÓÃunsigned long long ±íÊ¾
+	//æ— æ³•ç”¨unsigned long long è¡¨ç¤º
 
 }
 
 int GetUIntBase(std::string num)
 {
-	//numµÄÄ©Î²ÓĞU»òu  ĞÎÈçxxu,numµÄ2 8 16 Î»Êı´óÓÚ2
+	//numçš„æœ«å°¾æœ‰Uæˆ–u  å½¢å¦‚xxu,numçš„2 8 16 ä½æ•°å¤§äº2
 	if (num.size() < 3)
 	{
 		return 10;
@@ -647,8 +665,8 @@ int GetUIntBase(std::string num)
 }
 int IsBaseUInt(std::string num, int base, std::string& Valid)
 {
-	//ÓĞºó×ºU
-	//ÏÈÌáÈ¡ÓĞĞ§µÄÎ»Êı
+	//æœ‰åç¼€U
+	//å…ˆæå–æœ‰æ•ˆçš„ä½æ•°
 	unsigned int numLen = 0;
 	bool begin = false;
 	if (base == 2)
@@ -713,15 +731,15 @@ int IsBaseUInt(std::string num, int base, std::string& Valid)
 		base /= 2;
 		index += 1;
 	}
-	if (((8 * sizeof(unsigned int)) / index) >= numLen) return 1;//¿ÉÒÔÓÃUint±íÊ¾
-	if ((8 * sizeof(unsigned long long) / index) >= numLen) return 2;//ĞèÒªÌáÉıµ½unsigned long long±íÊ¾
-	return 0;//Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+	if (((8 * sizeof(unsigned int)) / index) >= numLen) return 1;//å¯ä»¥ç”¨Uintè¡¨ç¤º
+	if ((8 * sizeof(unsigned long long) / index) >= numLen) return 2;//éœ€è¦æå‡åˆ°unsigned long longè¡¨ç¤º
+	return 0;//æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 }
 
 int Is10UInt(std::string num, std::string& Valid)
 {
-	//numÄ©Î²Îªu»òÕßU
-	//ÏÈ»ñÈ¡ÓĞĞ§Î»
+	//numæœ«å°¾ä¸ºuæˆ–è€…U
+	//å…ˆè·å–æœ‰æ•ˆä½
 	bool real = false;
 	for (unsigned int i = 0; i < num.size() - 1; i++)
 	{
@@ -745,7 +763,7 @@ int Is10UInt(std::string num, std::string& Valid)
 			return 1;
 		}
 	}
-	//ÎŞ·¨ÓÃUint±íÊ¾
+	//æ— æ³•ç”¨Uintè¡¨ç¤º
 	std::string StdULL = std::to_string(ULLONG_MAX);
 	if (Valid.size() < StdULL.size())
 	{
@@ -761,12 +779,12 @@ int Is10UInt(std::string num, std::string& Valid)
 		}
 	}
 	return 0;
-	//ÎŞ·¨ÓÃunsigned long long ±íÊ¾
+	//æ— æ³•ç”¨unsigned long long è¡¨ç¤º
 }
 
 int GetLLongBase(std::string num)
 {
-	//numµÄÄ©Î²ÓĞL»òl  ĞÎÈçxxl,numµÄ2 8 16 Î»Êı´óÓÚ2
+	//numçš„æœ«å°¾æœ‰Læˆ–l  å½¢å¦‚xxl,numçš„2 8 16 ä½æ•°å¤§äº2
 	if (num.size() < 2)
 	{
 		return 10;
@@ -782,10 +800,10 @@ int GetLLongBase(std::string num)
 		return 10;
 	}
 }
-int IsBaseLLong(std::string num, int base, std::string& Valid)//²»°üº¬10½øÖÆÅĞ¶Ï
+int IsBaseLLong(std::string num, int base, std::string& Valid)//ä¸åŒ…å«10è¿›åˆ¶åˆ¤æ–­
 {
-	// ÓĞºó×ºl
-	//ÏÈÌáÈ¡ÓĞĞ§µÄÎ»Êı
+	// æœ‰åç¼€l
+	//å…ˆæå–æœ‰æ•ˆçš„ä½æ•°
 	unsigned int numLen = 0;
 	bool begin = false;
 	if (base == 2)
@@ -850,14 +868,14 @@ int IsBaseLLong(std::string num, int base, std::string& Valid)//²»°üº¬10½øÖÆÅĞ¶Ï
 		base /= 2;
 		index += 1;
 	}
-	if (((8 * sizeof(long long) - 1) / index) >= numLen) return 1;//¿ÉÒÔÓÃLLong±íÊ¾
-	if ((8 * sizeof(unsigned long long) / index) >= numLen) return 2;//ĞèÒªÌáÉıµ½unsigned long long±íÊ¾
-	return 0;//Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+	if (((8 * sizeof(long long) - 1) / index) >= numLen) return 1;//å¯ä»¥ç”¨LLongè¡¨ç¤º
+	if ((8 * sizeof(unsigned long long) / index) >= numLen) return 2;//éœ€è¦æå‡åˆ°unsigned long longè¡¨ç¤º
+	return 0;//æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 }
 int Is10LLong(std::string num, std::string& Valid)
 {
-	//numÄ©Î²ÎªL
-	//ÏÈ»ñÈ¡ÓĞĞ§Î»
+	//numæœ«å°¾ä¸ºL
+	//å…ˆè·å–æœ‰æ•ˆä½
 	bool real = false;
 	for (unsigned int i = 0; i < num.size() - 1; i++)
 	{
@@ -881,7 +899,7 @@ int Is10LLong(std::string num, std::string& Valid)
 			return 1;
 		}
 	}
-	//ÎŞ·¨ÓÃLL±íÊ¾
+	//æ— æ³•ç”¨LLè¡¨ç¤º
 	std::string StdULL = std::to_string(ULLONG_MAX);
 	if (Valid.size() < StdULL.size())
 	{
@@ -897,12 +915,12 @@ int Is10LLong(std::string num, std::string& Valid)
 		}
 	}
 	return 0;
-	//ÎŞ·¨ÓÃunsigned long long ±íÊ¾
+	//æ— æ³•ç”¨unsigned long long è¡¨ç¤º
 }
 
 int GetULLongBase(std::string num)
 {
-	//numµÄÄ©Î²ÓĞuL»òul  ĞÎÈçxxul,numµÄ2 8 16 Î»Êı´óÓÚ3
+	//numçš„æœ«å°¾æœ‰uLæˆ–ul  å½¢å¦‚xxul,numçš„2 8 16 ä½æ•°å¤§äº3
 	if (num.size() < 3)
 	{
 		return 10;
@@ -918,10 +936,10 @@ int GetULLongBase(std::string num)
 		return 10;
 	}
 }
-int IsBaseULLong(std::string num, int base, std::string& Valid)//²»°üº¬10½øÖÆÅĞ¶Ï
+int IsBaseULLong(std::string num, int base, std::string& Valid)//ä¸åŒ…å«10è¿›åˆ¶åˆ¤æ–­
 {
-	// ÓĞºó×ºlu
-	//ÏÈÌáÈ¡ÓĞĞ§µÄÎ»Êı
+	// æœ‰åç¼€lu
+	//å…ˆæå–æœ‰æ•ˆçš„ä½æ•°
 	unsigned int numLen = 0;
 	bool begin = false;
 	if (base == 2)
@@ -986,13 +1004,13 @@ int IsBaseULLong(std::string num, int base, std::string& Valid)//²»°üº¬10½øÖÆÅĞ¶
 		base /= 2;
 		index += 1;
 	}
-	if ((8 * sizeof(unsigned long long) / index) >= numLen) return 1;//¿ÉÒÔÓÃunsigned long long±íÊ¾
-	return 0;//Êı×Ö¹ı´ó£¬ÎŞ·¨±íÊ¾
+	if ((8 * sizeof(unsigned long long) / index) >= numLen) return 1;//å¯ä»¥ç”¨unsigned long longè¡¨ç¤º
+	return 0;//æ•°å­—è¿‡å¤§ï¼Œæ— æ³•è¡¨ç¤º
 }
 int Is10ULLong(std::string num, std::string& Valid)
 {
-	//numÄ©Î²ÎªUL
-	//ÏÈ»ñÈ¡ÓĞĞ§Î»
+	//numæœ«å°¾ä¸ºUL
+	//å…ˆè·å–æœ‰æ•ˆä½
 	bool real = false;
 	for (unsigned int i = 0; i < num.size() - 2; i++)
 	{
@@ -1016,5 +1034,5 @@ int Is10ULLong(std::string num, std::string& Valid)
 		}
 	}
 	return 0;
-	//ÎŞ·¨ÓÃunsigned long long ±íÊ¾
+	//æ— æ³•ç”¨unsigned long long è¡¨ç¤º
 }
